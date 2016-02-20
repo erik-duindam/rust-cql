@@ -1,4 +1,4 @@
-extern crate rust_cql;
+extern crate std;
 
 use std::borrow::Cow;
 use std::io::Write;

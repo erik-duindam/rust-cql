@@ -3,9 +3,9 @@ extern crate rust_cql;
 
 macro_rules! assert_response(
     ($resp:expr) => (
-        if match $resp.opcode { cql::OpcodeResponse::OpcodeError => true, _ => false } {
+        if match $resp.opcode { rust_cql::OpcodeResponse::OpcodeError => true, _ => false } {
             panic!("Test failed at assertion: {}",
-                match $resp.body { cql::CqlResponseBody::ResponseError(_, message) => message, _ => Cow::Borrowed("Ooops!")});
+                match $resp.body { rust_cql::CqlResponseBody::ResponseError(_, message) => message, _ => Cow::Borrowed("Ooops!")});
         }
     );
 );
@@ -19,4 +19,4 @@ macro_rules! try_test(
     }
 );
 
-mod test_cql;
+mod test_rust_cql;
