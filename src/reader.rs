@@ -140,7 +140,7 @@ impl<T: std::io::Read> CqlReader for T {
         if len != 16 {
             return Err(RCError::new("Invalid uuid length", RCErrorType::ReadError))
         }
-        let vec_u8 = try_rc!(self.read_cql_bytes(val_type), "Error reading uuid data");
+        let mut vec_u8 = try_rc!(self.read_cql_bytes(val_type), "Error reading uuid data");
 
         while let Some(top) = vec_u8.pop() {
             println!("VEC {}", top);
