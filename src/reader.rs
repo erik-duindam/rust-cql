@@ -74,7 +74,7 @@ impl<T: std::io::Read> CqlReader for T {
 
     fn read_uuid_cql_bytes(&mut self, val_type: CqlBytesSize) -> RCResult<Vec<u8>> {
         let len:i32 = match val_type {
-            CqlBytesSize::Cqli32 => 32
+            CqlBytesSize::Cqli32 => 32,
             CqlBytesSize::Cqli16 => 16 as i32
         };
 
