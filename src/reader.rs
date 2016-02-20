@@ -24,6 +24,7 @@ use ep::FromPrimitive;
 
 pub trait CqlReader {
     fn read_cql_bytes(&mut self, val_type: CqlBytesSize) -> RCResult<Vec<u8>>;
+    fn read_uuid_cql_bytes(&mut self, val_type: CqlBytesSize) -> RCResult<Vec<u8>>;
     fn read_cql_bytes_length(&mut self, val_type: CqlBytesSize) -> RCResult<i32>;
     fn read_cql_bytes_length_fixed(&mut self, val_type: CqlBytesSize, length: i32) -> RCResult<i32>;
 
@@ -56,19 +57,29 @@ pub trait CqlReader {
 
 impl<T: std::io::Read> CqlReader for T {
     fn read_cql_bytes(&mut self, val_type: CqlBytesSize) -> RCResult<Vec<u8>> {
-        let mut len:i32 = match val_type {
+        let len:i32 = match val_type {
             CqlBytesSize::Cqli32 => try_bo!(self.read_i32::<BigEndian>(), "Error reading bytes length"),
             CqlBytesSize::Cqli16 => try_bo!(self.read_i16::<BigEndian>(), "Error reading collection bytes length") as i32
         };
 
-        println!("Bytes is {}", len);
-
-        if (len < 0) {
-            len = 16;
-        }
-
         if len < 0 {
             println!("Empty fucking vector");
+            Ok(vec![])
+        } else {
+            let mut buf = Vec::with_capacity(len as usize);
+            try_io!(std::io::copy(&mut self.take(len as u64), &mut buf), "Error at read_exact");
+            Ok(buf)
+        }
+    }
+
+    fn read_uuid_cql_bytes(&mut self, val_type: CqlBytesSize) -> RCResult<Vec<u8>> {
+        let len:i32 = match val_type {
+            CqlBytesSize::Cqli32 => 32
+            CqlBytesSize::Cqli16 => 16 as i32
+        };
+
+        if len < 0 {
+            println!("Empty fucking vectorz");
             Ok(vec![])
         } else {
             let mut buf = Vec::with_capacity(len as usize);
@@ -148,7 +159,7 @@ impl<T: std::io::Read> CqlReader for T {
             return Err(RCError::new("Invalid uuid length", RCErrorType::ReadError))
         }
 
-        let vec_u8 = try_rc!(self.read_cql_bytes(val_type), "Error reading uuid data");
+        let vec_u8 = try_rc!(self.read_uuid_cql_bytes(val_type), "Error reading uuid data");
 
         match Uuid::from_bytes(&vec_u8) {
             Some(u) => Ok(Some(u)),
