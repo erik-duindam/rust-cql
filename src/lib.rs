@@ -1,4 +1,4 @@
-#![crate_name = "cql"]
+#![crate_name = "rust_cql"]
 #![crate_type = "rlib"]
 #![crate_type = "dylib"]
 

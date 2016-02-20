@@ -1,8 +1,8 @@
 [package]
 
-name = "cql"
-version = "0.0.2"
-authors = ["Ignacio Martín <natx.mc@gmail.com>"]
+name = "rust_cql"
+version = "0.0.3"
+authors = ["Erik Duindam <erik@nuntio.tv>, Ignacio Martín <natx.mc@gmail.com>"]
 
 [dependencies.uuid]
 

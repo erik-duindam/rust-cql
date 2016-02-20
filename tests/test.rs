@@ -1,5 +1,5 @@
 #[macro_use]
-extern crate cql;
+extern crate rust_cql;
 
 macro_rules! assert_response(
     ($resp:expr) => (
