@@ -62,6 +62,7 @@ impl<T: std::io::Read> CqlReader for T {
         };
 
         if len < 0 {
+            println!("Empty fucking vector");
             Ok(vec![])
         } else {
             let mut buf = Vec::with_capacity(len as usize);
@@ -142,8 +143,6 @@ impl<T: std::io::Read> CqlReader for T {
         }
 
         let vec_u8 = try_rc!(self.read_cql_bytes(val_type), "Error reading uuid data");
-        println!("Lenght={}",val_type);
-
 
         match Uuid::from_bytes(&vec_u8) {
             Some(u) => Ok(Some(u)),
