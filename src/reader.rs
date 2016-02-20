@@ -57,8 +57,8 @@ pub trait CqlReader {
 impl<T: std::io::Read> CqlReader for T {
     fn read_cql_bytes(&mut self, val_type: CqlBytesSize) -> RCResult<Vec<u8>> {
         let len:i32 = match val_type {
-            CqlBytesSize::Cqli32 => try_bo!(self.read_i32::<BigEndian>(), "Error reading bytes length"),
-            CqlBytesSize::Cqli16 => try_bo!(self.read_i16::<BigEndian>(), "Error reading collection bytes length") as i32
+            CqlBytesSize::Cqli32 => 32,
+            CqlBytesSize::Cqli16 => 16,
         };
 
         if len < 0 {
