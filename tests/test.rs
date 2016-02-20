@@ -19,4 +19,4 @@ macro_rules! try_test(
     }
 );
 
-mod test_rust_cql;
+pub mod test_rust_cql;
