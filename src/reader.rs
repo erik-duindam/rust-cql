@@ -142,8 +142,7 @@ impl<T: std::io::Read> CqlReader for T {
         }
 
         let vec_u8 = try_rc!(self.read_cql_bytes(val_type), "Error reading uuid data");
-        println!("Lenght={}", vec_u8.len());
-
+        println!("Lenght={}",val_type);
 
 
         match Uuid::from_bytes(&vec_u8) {
