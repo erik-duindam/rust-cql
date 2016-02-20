@@ -73,10 +73,14 @@ impl<T: std::io::Read> CqlReader for T {
     }
 
     fn read_uuid_cql_bytes(&mut self, val_type: CqlBytesSize) -> RCResult<Vec<u8>> {
-        let len:i32 = try_rc!(self.read_cql_bytes_length(val_type), "Garbage");
+        let len:i64 = match val_type {
+            CqlBytesSize::Cqli32 => try_bo!(self.read_i64::<BigEndian>(), "Error reading bytes length"),
+            CqlBytesSize::Cqli16 => try_bo!(self.read_i64::<BigEndian>(), "Error reading collection bytes length") as i64
+        };
+
 
         println!("Vector size {}", len);
-        
+
         if len < 0 {
             println!("Empty fucking vectorz");
             Ok(vec![])
