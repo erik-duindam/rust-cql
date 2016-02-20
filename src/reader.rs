@@ -59,7 +59,7 @@ impl<T: std::io::Read> CqlReader for T {
         let len:i32 = match val_type {
             CqlBytesSize::Cqli32 => try_bo!(self.read_i32::<BigEndian>(), "Error reading bytes length"),
             CqlBytesSize::Cqli16 => try_bo!(self.read_i16::<BigEndian>(), "Error reading collection bytes length") as i32
-        }; 
+        };
 
         if len < 0 {
             Ok(vec![])
@@ -74,7 +74,7 @@ impl<T: std::io::Read> CqlReader for T {
         match val_type {
             CqlBytesSize::Cqli32 => Ok(try_bo!(self.read_i32::<BigEndian>(), "Error reading bytes length")),
             CqlBytesSize::Cqli16 => Ok(try_bo!(self.read_i16::<BigEndian>(), "Error reading collection bytes length") as i32)
-        }       
+        }
     }
 
     fn read_cql_bytes_length_fixed(&mut self, val_type: CqlBytesSize, length: i32) -> RCResult<i32> {
@@ -86,7 +86,7 @@ impl<T: std::io::Read> CqlReader for T {
             Err(RCError::new(format!("Error reading bytes, length ({}) different than expected ({})", len, length), RCErrorType::ReadError))
         }  else {
             Ok(len)
-        }    
+        }
     }
 
     fn read_cql_str(&mut self, val_type: CqlBytesSize) -> RCResult<Option<CowStr>> {
@@ -94,17 +94,17 @@ impl<T: std::io::Read> CqlReader for T {
         match std::str::from_utf8(&vec_u8) {
             Ok(s) => Ok(Some(Cow::Owned(s.to_owned()))),
             Err(_) => Err(RCError::new("Error reading string, invalid utf8 sequence", RCErrorType::ReadError))
-        }     
+        }
     }
 
     fn read_cql_f32(&mut self, val_type: CqlBytesSize) -> RCResult<Option<f32>> {
         try_rc_length!(self.read_cql_bytes_length_fixed(val_type, size_of::<f32>() as i32), "Error reading bytes (float) length");
-        Ok(Some(try_bo!(self.read_f32::<BigEndian>(), "Error reading float (float)")))  
+        Ok(Some(try_bo!(self.read_f32::<BigEndian>(), "Error reading float (float)")))
     }
 
     fn read_cql_f64(&mut self, val_type: CqlBytesSize) -> RCResult<Option<f64>> {
         try_rc_length!(self.read_cql_bytes_length_fixed(val_type, size_of::<f64>() as i32), "Error reading bytes (double) length");
-        Ok(Some(try_bo!(self.read_f64::<BigEndian>(), "Error reading double (double)")))    
+        Ok(Some(try_bo!(self.read_f64::<BigEndian>(), "Error reading double (double)")))
     }
 
     fn read_cql_i32(&mut self, val_type: CqlBytesSize) -> RCResult<Option<i32>> {
@@ -121,7 +121,7 @@ impl<T: std::io::Read> CqlReader for T {
         try_rc!(self.read_cql_bytes_length(val_type), "Error reading bytes (long) length");
         Ok(Some(try_bo!(self.read_u64::<BigEndian>(), "Error reading long (u64)")))
     }
-    
+
     fn read_cql_blob(&mut self, val_type: CqlBytesSize) -> RCResult<Option<Vec<u8>>> {
         let len = try_rc_length!(self.read_cql_bytes_length(val_type), "Error reading blob length");
         Ok(Some(try_rc!(self.read_cql_bytes(val_type), "Error reading string data")))
@@ -138,13 +138,14 @@ impl<T: std::io::Read> CqlReader for T {
     fn read_cql_uuid(&mut self, val_type: CqlBytesSize) -> RCResult<Option<Uuid>> {
         let len = try_rc_length!(self.read_cql_bytes_length(val_type), "Error reading uuid length");
         if len != 16 {
-            return Err(RCError::new("Invalid uuid length", RCErrorType::ReadError))  
+            return Err(RCError::new("Invalid uuid length", RCErrorType::ReadError))
         }
         let vec_u8 = try_rc!(self.read_cql_bytes(val_type), "Error reading uuid data");
+        println!("Bytes = {}", vec_u8);
         match Uuid::from_bytes(&vec_u8) {
             Some(u) => Ok(Some(u)),
             None => Err(RCError::new("Invalid uuid", RCErrorType::ReadError))
-        }      
+        }
     }
 
     fn read_cql_inet(&mut self, val_type: CqlBytesSize) -> RCResult<Option<IpAddr>> {
@@ -161,7 +162,7 @@ impl<T: std::io::Read> CqlReader for T {
               vec[9] as u16 + ((vec[8] as u16) << 8),
               vec[11] as u16 + ((vec[10] as u16) << 8),
               vec[13] as u16 + ((vec[12] as u16) << 8),
-              vec[15] as u16 + ((vec[14] as u16) << 8)))))     
+              vec[15] as u16 + ((vec[14] as u16) << 8)))))
         }
     }
 
@@ -214,7 +215,7 @@ impl<T: std::io::Read> CqlReader for T {
     fn read_cql_skip(&mut self, val_type: CqlBytesSize) -> RCResult<()> {
         let len = try_rc!(self.read_cql_bytes_length(val_type), "Error reading value length");
         try_rc!(self.read_cql_bytes(val_type), "Error reading value data");
-        Ok(())     
+        Ok(())
     }
 
     fn read_cql_metadata(&mut self) -> RCResult<CqlMetadata> {
@@ -383,7 +384,7 @@ impl<T: std::io::Read> CqlReader for T {
         if version >= 3 {
             let mut header_data = [0; 5];
             try_rc!(self.take(5).read(&mut header_data), "Error reading response header");
-           
+
             let version_header = header_data[0];
             let flags = header_data[1];
             let stream = (header_data[2] as u16 + ((header_data[3] as u16) << 8)) as i16;
@@ -397,7 +398,7 @@ impl<T: std::io::Read> CqlReader for T {
         } else {
             let mut header_data = [0; 4];
             try_rc!(self.take(4).read(&mut header_data), "Error reading response header");
-           
+
             let version_header = header_data[0];
             let flags = header_data[1];
             let stream = header_data[2] as i16;
@@ -471,7 +472,7 @@ impl<T: std::io::Read> CqlReader for T {
                     Some(KindPrepared) => {
                         let id = try_rc!(reader.read_cql_bytes(CqlBytesSize::Cqli16), "Error reading result Prepared (id)");
                         let metadata = try_rc!(reader.read_cql_metadata(), "Error reading result Prepared (metadata)");
-                        let meta_result = if version >= 0x02 { 
+                        let meta_result = if version >= 0x02 {
                             Some(try_rc!(reader.read_cql_metadata(), "Error reading result Prepared (metadata result)"))
                         } else {
                             None
@@ -501,9 +502,3 @@ impl<T: std::io::Read> CqlReader for T {
         })
     }
 }
-
-
-
-
-
-
